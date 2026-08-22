@@ -6,22 +6,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <header>
     <h1>SafeScan</h1>
-    <p>Scan or search products to see health flags and scores.</p>
+    <p>Scan or search products to see health scores and detailed facts.</p>
   </header>
 
   <main>
-    <!-- Scan section -->
+
+    <!-- Scan Section -->
     <section id="scanSection">
       <h2>Scan a Barcode</h2>
+
+      <div class="camera-container">
+        <video id="camera" playsinline></video>
+
+        <div class="camera-overlay">
+          <button id="flashToggle">🔦 Flash</button>
+          <button id="closeScan">✖</button>
+        </div>
+      </div>
+
       <button id="scanBtn">Start Scan</button>
-      <video id="camera" playsinline></video>
       <p id="scanStatus"></p>
     </section>
 
-    <!-- Search section -->
+    <!-- Search Section -->
     <section id="searchSection">
       <h2>Search Products</h2>
       <input type="text" id="searchBox" placeholder="Search by name...">
@@ -32,20 +43,8 @@
     <!-- Preferences -->
     <section id="prefs">
       <h2>User Preferences</h2>
-      <label>
-        <input type="checkbox" id="avoidSeedOils">
-        Avoid Seed Oils
-      </label><br>
-      <label>
-        <input type="checkbox" id="vegan">
-        Vegan
-      </label>
-    </section>
-
-    <!-- Current product result -->
-    <section id="resultSection">
-      <h2>Product Details</h2>
-      <div id="result"></div>
+      <label><input type="checkbox" id="avoidSeedOils"> Avoid Seed Oils</label><br>
+      <label><input type="checkbox" id="vegan"> Vegan</label>
     </section>
 
     <!-- History -->
@@ -53,10 +52,19 @@
       <h2>Scan History</h2>
       <div id="history"></div>
     </section>
+
   </main>
 
+  <!-- Modal -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <span id="modalClose" class="close">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
   <footer>
-    <p>SafeScan • Powered by Open Food Facts • All local, no accounts, no paywall.</p>
+    <p>SafeScan • Powered by Open Food Facts • 100% local, no accounts, no paywall.</p>
   </footer>
 
   <script src="app.js"></script>
