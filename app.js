@@ -125,3 +125,7 @@ function renderHistory(history = null) {
 }
 
 renderHistory();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
