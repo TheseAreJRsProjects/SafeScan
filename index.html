@@ -69,4 +69,39 @@
 
   <script src="app.js"></script>
 </body>
+</html>      <h2>Search Products</h2>
+      <input type="text" id="searchBox" placeholder="Search by name...">
+      <button id="searchBtn">Search</button>
+      <section id="searchResults"></section>
+    </section>
+
+    <!-- Preferences -->
+    <section id="prefs">
+      <h2>User Preferences</h2>
+      <label><input type="checkbox" id="avoidSeedOils"> Avoid Seed Oils</label><br>
+      <label><input type="checkbox" id="vegan"> Vegan</label>
+    </section>
+
+    <!-- History -->
+    <section id="historySection">
+      <h2>Scan History</h2>
+      <div id="history"></div>
+    </section>
+
+  </main>
+
+  <!-- Modal -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <span id="modalClose" class="close">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>SafeScan • Powered by Open Food Facts • 100% local, no accounts, no paywall.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
 </html>
