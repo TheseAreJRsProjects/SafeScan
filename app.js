@@ -5,11 +5,27 @@ const resultModal = document.getElementById('resultModal');
 const modalBody = document.getElementById('modalBody');
 const modalClose = document.getElementById('modalClose');
 const historyEl = document.getElementById('history');
+const favoritesEl = document.getElementById('favorites');
 const scanStatusEl = document.getElementById('scanStatus');
 const themeToggle = document.getElementById('themeToggle');
+const navButtons = document.querySelectorAll('.nav-btn');
+const tabSections = document.querySelectorAll('.tab-section');
 
 let stream;
 let scanning = false;
+
+/* TAB SWITCHING */
+navButtons.forEach(btn => {
+  btn.onclick = () => {
+    const tab = btn.dataset.tab;
+
+    tabSections.forEach(sec => sec.classList.remove('active-tab'));
+    document.getElementById(tab).classList.add('active-tab');
+
+    navButtons.forEach(b => b.classList.remove('active-nav'));
+    btn.classList.add('active-nav');
+  };
+});
 
 /* DARK MODE */
 themeToggle.onclick = () => {
@@ -22,7 +38,7 @@ themeToggle.onclick = () => {
   }
 };
 
-/* FOOD SCORING (YUKA) */
+/* FOOD SCORING (YUKA MODEL) */
 function computeFoodScore(product) {
   const nutr = product.nutriments || {};
   const isOrganic =
@@ -127,6 +143,37 @@ function renderHistory() {
   `).join('');
 }
 
+/* FAVORITES */
+function saveFavorite(product, score) {
+  const item = {
+    barcode: product.code,
+    name: product.product_name || 'Unknown',
+    score,
+    ts: Date.now()
+  };
+
+  const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+  favs.unshift(item);
+  localStorage.setItem('favorites', JSON.stringify(favs));
+  renderFavorites();
+}
+
+function renderFavorites() {
+  const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+  if (!favs.length) {
+    favoritesEl.innerHTML = '<p>No favorites yet.</p>';
+    return;
+  }
+
+  favoritesEl.innerHTML = favs.map(f => `
+    <div class="history-item" onclick="showProduct('${f.barcode}')">
+      <strong>${f.name}</strong><br>
+      <span class="${scoreClass(f.score)}">${f.score}/100</span>
+    </div>
+  `).join('');
+}
+
 /* ALTERNATIVES */
 function findAlternatives(product, score) {
   const history = JSON.parse(localStorage.getItem('history') || '[]');
@@ -164,6 +211,7 @@ async function showProduct(barcode) {
   const ingredientsText = p.ingredients_text || 'N/A';
   const nutr = p.nutriments || {};
   const categories = p.categories_tags || [];
+  const image = p.image_front_url || "";
 
   const isCosmetic = categories.some(c =>
     c.includes('cosmetics') ||
@@ -178,8 +226,13 @@ async function showProduct(barcode) {
 
   let card = `
     <h2>${name}</h2>
-    <p class="${scoreClass(score)}">${score}/100 — ${label}</p>
+    <div class="score-badge ${scoreClass(score)}">${score}</div>
+    <p>${label}</p>
   `;
+
+  if (image) {
+    card += `<img src="${image}" class="product-img">`;
+  }
 
   if (isCosmetic) {
     card += `
@@ -219,6 +272,12 @@ async function showProduct(barcode) {
       `;
     });
   }
+
+  card += `
+    <button onclick="saveFavorite(${JSON.stringify(p).replace(/"/g, '&quot;')}, ${score})">
+      ⭐ Add to Favorites
+    </button>
+  `;
 
   openModal(card);
   saveHistory(p, score);
@@ -310,3 +369,4 @@ document.getElementById('searchBtn').onclick = async () => {
 
 /* INIT */
 renderHistory();
+renderFavorites();
