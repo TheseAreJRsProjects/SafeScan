@@ -3,7 +3,6 @@ const scanBtn = document.getElementById('scanBtn');
 const video = document.getElementById('camera');
 const resultModal = document.getElementById('resultModal');
 const modalBody = document.getElementById('modalBody');
-const modalClose = document.getElementById('modalClose');
 const historyEl = document.getElementById('history');
 const favoritesEl = document.getElementById('favorites');
 const scanStatusEl = document.getElementById('scanStatus');
@@ -37,27 +36,21 @@ navButtons.forEach(btn => {
 
 /* DARK MODE */
 themeToggle.onclick = () => {
-  if (document.body.classList.contains('dark')) {
-    document.body.classList.remove('dark');
-    document.body.classList.add('light');
-  } else {
-    document.body.classList.remove('light');
-    document.body.classList.add('dark');
-  }
+  document.body.classList.toggle('dark');
+  document.body.classList.toggle('light');
 };
 
-/* FOOD SCORING (closer to Nutri-Score + Yuka weights) */
+/* FOOD SCORING (NutriScore + Yuka weighting) */
 function computeFoodScore(product) {
   const nutr = product.nutriments || {};
   const isOrganic =
     (product.labels_tags || []).some(t => t.toLowerCase().includes('organic')) ||
     (product.ingredients_text || '').toLowerCase().includes('organic');
 
-  // Negative points (per 100g)
-  const energy = nutr['energy-kcal_100g'] || nutr['energy_100g'] || 0; // kcal
-  const satFat = nutr.saturated_fat_100g || 0; // g
-  const sugars = nutr.sugars_100g || 0; // g
-  const sodium = nutr.sodium_100g || 0; // g
+  const energy = nutr['energy-kcal_100g'] || nutr['energy_100g'] || 0;
+  const satFat = nutr.saturated_fat_100g || 0;
+  const sugars = nutr.sugars_100g || 0;
+  const sodium = nutr.sodium_100g || 0;
 
   let negative = 0;
   negative += energy > 335 ? 10 : energy > 275 ? 8 : energy > 225 ? 6 : energy > 175 ? 4 : energy > 135 ? 2 : 0;
@@ -65,7 +58,6 @@ function computeFoodScore(product) {
   negative += sugars > 22.5 ? 10 : sugars > 18 ? 8 : sugars > 13.5 ? 6 : sugars > 9 ? 4 : sugars > 4.5 ? 2 : 0;
   negative += sodium > 0.9 ? 10 : sodium > 0.7 ? 8 : sodium > 0.5 ? 6 : sodium > 0.35 ? 4 : sodium > 0.2 ? 2 : 0;
 
-  // Positive points
   const protein = nutr.proteins_100g || 0;
   const fiber = nutr.fiber_100g || 0;
   const fruits = nutr['fruits-vegetables-nuts_100g'] || 0;
@@ -75,14 +67,11 @@ function computeFoodScore(product) {
   positive += fiber > 4.7 ? 5 : fiber > 3.7 ? 4 : fiber > 2.8 ? 3 : fiber > 1.9 ? 2 : fiber > 0.9 ? 1 : 0;
   positive += fruits > 80 ? 10 : fruits > 60 ? 8 : fruits > 40 ? 5 : fruits > 20 ? 2 : 0;
 
-  // Nutri-Score style base (0–40, lower is better)
   let rawNutri = negative - positive;
   rawNutri = Math.max(-15, Math.min(40, rawNutri));
 
-  // Convert to 0–100 where higher is better
   const nutritionalComponent = (40 - rawNutri) / 40 * 100 * 0.6;
 
-  // Additives (Yuka-style penalty)
   const additivesCount = product.additives_n || 0;
   let additivesPenalty = 0;
   if (additivesCount === 0) additivesPenalty = 0;
@@ -91,12 +80,9 @@ function computeFoodScore(product) {
   else additivesPenalty = 60;
 
   const additivesComponent = (100 - additivesPenalty) * 0.3;
-
-  // Organic bonus
   const organicComponent = isOrganic ? 100 * 0.1 : 0;
 
-  const finalScore = nutritionalComponent + additivesComponent + organicComponent;
-  return Math.max(0, Math.min(100, Math.round(finalScore)));
+  return Math.max(0, Math.min(100, Math.round(nutritionalComponent + additivesComponent + organicComponent)));
 }
 
 /* COSMETIC SCORING */
@@ -165,12 +151,11 @@ function renderHistory() {
 /* FAVORITES */
 function saveFavoriteByBarcode(barcode, score) {
   const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-  const existing = favs.find(f => f.barcode === barcode);
-  if (existing) return;
-
-  favs.unshift({ barcode, score, ts: Date.now() });
-  localStorage.setItem('favorites', JSON.stringify(favs));
-  renderFavorites();
+  if (!favs.find(f => f.barcode === barcode)) {
+    favs.unshift({ barcode, score, ts: Date.now() });
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    renderFavorites();
+  }
 }
 
 async function renderFavorites() {
@@ -184,8 +169,7 @@ async function renderFavorites() {
   favoritesEl.innerHTML = '';
 
   for (const f of favs) {
-    const url = `https://world.openfoodfacts.org/api/v2/product/${f.barcode}`;
-    const res = await fetch(url);
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${f.barcode}`);
     const data = await res.json();
     const p = data.product;
     const name = p ? (p.product_name || 'Unknown') : 'Unknown';
@@ -223,8 +207,7 @@ async function renderCompare() {
   compareContainer.innerHTML = '';
 
   for (const item of pair) {
-    const url = `https://world.openfoodfacts.org/api/v2/product/${item.barcode}`;
-    const res = await fetch(url);
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${item.barcode}`);
     const data = await res.json();
     const p = data.product;
     const name = p ? (p.product_name || 'Unknown') : 'Unknown';
@@ -242,14 +225,7 @@ async function renderCompare() {
 
 /* MODAL */
 function openModal(html) {
-  modalBody.innerHTML = `
-    <div class="modal-header">
-      <span style="font-weight:600;">Product Details</span>
-      <button class="modal-close-btn" id="modalStickyClose">✖</button>
-    </div>
-    ${html}
-  `;
-
+  modalBody.innerHTML = html;
   resultModal.style.display = "block";
 
   document.getElementById('modalStickyClose').onclick = () => {
@@ -257,14 +233,9 @@ function openModal(html) {
   };
 }
 
-modalClose.onclick = () => {
-  resultModal.style.display = "none";
-};
-
 /* SHOW PRODUCT */
 async function showProduct(barcode) {
-  const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}`;
-  const res = await fetch(url);
+  const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}`);
   const data = await res.json();
 
   if (!data.product) {
@@ -294,24 +265,20 @@ async function showProduct(barcode) {
 
   let card = `
     <h2>${name}</h2>
+
     <div class="score-ring" style="background: conic-gradient(#8dd47f 0deg, #8dd47f ${ringAngle}deg, #3a3c35 ${ringAngle}deg);">
       <div class="score-ring-inner">${score}</div>
     </div>
+
     <p>${label}</p>
+
+    ${image ? `<img src="${image}" class="product-img" loading="lazy">` : ''}
+
+    <h3>Nutritional Profile</h3>
   `;
 
-  if (image) {
-    card += `<img src="${image}" class="product-img" loading="lazy">`;
-  }
-
-  if (isCosmetic) {
+  if (!isCosmetic) {
     card += `
-      <h3>Cosmetic Safety</h3>
-      <p>${ingredientsText}</p>
-    `;
-  } else {
-    card += `
-      <h3>Nutritional profile (per 100g)</h3>
       <ul>
         ${nutr['energy-kcal_100g'] ? `<li>Energy: ${nutr['energy-kcal_100g']} kcal</li>` : ""}
         ${nutr.saturated_fat_100g ? `<li>Saturated fat: ${nutr.saturated_fat_100g} g</li>` : ""}
@@ -325,6 +292,11 @@ async function showProduct(barcode) {
       <p>${(p.additives_n || 0)} additive(s) detected.</p>
 
       <h3>Ingredients</h3>
+      <p>${ingredientsText}</p>
+    `;
+  } else {
+    card += `
+      <h3>Cosmetic Safety</h3>
       <p>${ingredientsText}</p>
     `;
   }
@@ -352,9 +324,7 @@ async function showProduct(barcode) {
   const favBtn = document.getElementById('favBtn');
   if (favBtn) {
     favBtn.onclick = () => {
-      const bc = favBtn.getAttribute('data-barcode');
-      const sc = parseInt(favBtn.getAttribute('data-score'), 10);
-      saveFavoriteByBarcode(bc, sc);
+      saveFavoriteByBarcode(p.code, score);
     };
   }
 
@@ -445,9 +415,7 @@ document.getElementById('closeScan').onclick = () => {
 async function performSearch(query) {
   if (!query) return;
 
-  const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`;
-
-  const res = await fetch(url);
+  const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1`);
   const data = await res.json();
 
   const resultsEl = document.getElementById('searchResults');
@@ -456,4 +424,37 @@ async function performSearch(query) {
   (data.products || []).slice(0, 10).forEach(p => {
     resultsEl.innerHTML += `
       <div onclick="showProduct('${p.code}')">
-        <strong>${p.product_name || '
+        <strong>${p.product_name || 'Unknown'}</strong><br>
+        ${p.code}
+      </div>
+    `;
+  });
+}
+
+searchBox.addEventListener('keyup', () => {
+  const q = searchBox.value.trim();
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => performSearch(q), 400);
+});
+
+searchBtn.onclick = () => {
+  const q = searchBox.value.trim();
+  performSearch(q);
+};
+
+/* SETTINGS */
+clearHistoryBtn.onclick = () => {
+  localStorage.removeItem('history');
+  renderHistory();
+  renderCompare();
+};
+
+clearFavoritesBtn.onclick = () => {
+  localStorage.removeItem('favorites');
+  renderFavorites();
+};
+
+/* INIT */
+renderHistory();
+renderFavorites();
+renderCompare();
