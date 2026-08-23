@@ -79,8 +79,16 @@
   <!-- MODAL -->
   <div id="resultModal" class="modal">
     <div class="modal-content">
-      <span id="modalClose" class="close">&times;</span>
-      <div id="modalBody"></div>
+
+      <!-- Sticky Header -->
+      <div class="modal-header">
+        <span class="modal-title">Product Details</span>
+        <button class="modal-close-btn" id="modalStickyClose">✖</button>
+      </div>
+
+      <!-- Scrollable Body -->
+      <div id="modalBody" class="modal-body"></div>
+
     </div>
   </div>
 
