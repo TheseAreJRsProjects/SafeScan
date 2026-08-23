@@ -1,6 +1,4 @@
-/* ---------------------------
-   ELEMENTS
----------------------------- */
+/* ELEMENTS */
 const scanBtn = document.getElementById('scanBtn');
 const video = document.getElementById('camera');
 const resultModal = document.getElementById('resultModal');
@@ -8,53 +6,29 @@ const modalBody = document.getElementById('modalBody');
 const modalClose = document.getElementById('modalClose');
 const historyEl = document.getElementById('history');
 const scanStatusEl = document.getElementById('scanStatus');
+const themeToggle = document.getElementById('themeToggle');
 
 let stream;
-let track;
 let scanning = false;
-let flashOn = false;
 
-/* ---------------------------
-   FLASH CONTROL
----------------------------- */
-async function enableFlash() {
-  if (!track) return;
-  try {
-    await track.applyConstraints({ advanced: [{ torch: true }] });
-    flashOn = true;
-  } catch (e) {
-    console.log("Flash not supported");
+/* DARK MODE */
+themeToggle.onclick = () => {
+  if (document.body.classList.contains('dark')) {
+    document.body.classList.remove('dark');
+    document.body.classList.add('light');
+  } else {
+    document.body.classList.remove('light');
+    document.body.classList.add('dark');
   }
-}
-
-async function disableFlash() {
-  if (!track) return;
-  try {
-    await track.applyConstraints({ advanced: [{ torch: false }] });
-    flashOn = false;
-  } catch (e) {
-    console.log("Flash disable failed");
-  }
-}
-
-document.getElementById('flashToggle').onclick = () => {
-  flashOn ? disableFlash() : enableFlash();
 };
 
-document.getElementById('closeScan').onclick = () => {
-  stopScan();
-};
-
-/* ---------------------------
-   YUKA-STYLE HEALTH SCORE
----------------------------- */
-function computeHealthScoreYuka(product) {
+/* FOOD SCORING (YUKA) */
+function computeFoodScore(product) {
   const nutr = product.nutriments || {};
   const isOrganic =
     (product.labels_tags || []).some(t => t.toLowerCase().includes('organic')) ||
     (product.ingredients_text || '').toLowerCase().includes('organic');
 
-  // 1) Nutritional Quality (60%)
   let nutriScore = 100;
 
   const energy = nutr['energy-kcal_100g'] || nutr['energy_100g'] || 0;
@@ -64,44 +38,49 @@ function computeHealthScoreYuka(product) {
   const protein = nutr.proteins_100g || 0;
   const fiber = nutr.fiber_100g || 0;
 
-  // Negative points
-  nutriScore -= Math.min(energy / 10, 20);       // energy density
-  nutriScore -= Math.min(satFat * 3, 20);        // saturated fat
-  nutriScore -= Math.min(sugars * 2, 20);        // simple sugars
-  nutriScore -= Math.min(sodium * 10, 20);       // sodium
+  nutriScore -= Math.min(energy / 10, 20);
+  nutriScore -= Math.min(satFat * 3, 20);
+  nutriScore -= Math.min(sugars * 2, 20);
+  nutriScore -= Math.min(sodium * 10, 20);
 
-  // Positive points
-  nutriScore += Math.min(protein * 2, 15);       // protein
-  nutriScore += Math.min(fiber * 3, 15);         // fiber
+  nutriScore += Math.min(protein * 2, 15);
+  nutriScore += Math.min(fiber * 3, 15);
 
   nutriScore = Math.max(0, Math.min(100, nutriScore));
   const nutritionalComponent = nutriScore * 0.6;
 
-  // 2) Additives (30%)
   const additivesCount = product.additives_n || 0;
   let additivesPenalty = 0;
 
-  if (additivesCount === 0) {
-    additivesPenalty = 0;
-  } else if (additivesCount <= 2) {
-    additivesPenalty = 15;
-  } else if (additivesCount <= 5) {
-    additivesPenalty = 30;
-  } else {
-    additivesPenalty = 60;
-  }
+  if (additivesCount === 0) additivesPenalty = 0;
+  else if (additivesCount <= 2) additivesPenalty = 15;
+  else if (additivesCount <= 5) additivesPenalty = 30;
+  else additivesPenalty = 60;
 
   const additivesComponent = (100 - additivesPenalty) * 0.3;
 
-  // 3) Organic (10%)
   const organicComponent = isOrganic ? 100 * 0.1 : 0;
 
   let finalScore = nutritionalComponent + additivesComponent + organicComponent;
-  finalScore = Math.max(0, Math.min(100, Math.round(finalScore)));
-
-  return finalScore;
+  return Math.max(0, Math.min(100, Math.round(finalScore)));
 }
 
+/* COSMETIC SCORING */
+function computeCosmeticScore(product) {
+  const ingredients = (product.ingredients_text || '').toLowerCase();
+
+  const highRisk = ['paraben', 'sulfate', 'phthalate', 'formaldehyde', 'oxybenzone'];
+  const moderateRisk = ['fragrance', 'alcohol denat', 'silicone'];
+  const limitedRisk = ['citric acid', 'lactic acid', 'essential oil'];
+
+  if (highRisk.some(r => ingredients.includes(r))) return 25;
+  if (moderateRisk.some(r => ingredients.includes(r))) return 50;
+  if (limitedRisk.some(r => ingredients.includes(r))) return 70;
+
+  return 100;
+}
+
+/* RATING LABEL */
 function ratingLabel(score) {
   if (score >= 80) return 'Excellent';
   if (score >= 60) return 'Good';
@@ -116,14 +95,13 @@ function scoreClass(score) {
   return 'score-bad';
 }
 
-/* ---------------------------
-   HISTORY
----------------------------- */
+/* HISTORY */
 function saveHistory(product, score) {
   const item = {
     barcode: product.code,
     name: product.product_name || 'Unknown',
     score,
+    category: product.categories_tags ? product.categories_tags[0] : 'unknown',
     ts: Date.now()
   };
 
@@ -149,9 +127,18 @@ function renderHistory() {
   `).join('');
 }
 
-/* ---------------------------
-   MODAL
----------------------------- */
+/* ALTERNATIVES */
+function findAlternatives(product, score) {
+  const history = JSON.parse(localStorage.getItem('history') || '[]');
+  const category = product.categories_tags ? product.categories_tags[0] : 'unknown';
+
+  return history
+    .filter(h => h.category === category && h.score > score)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+}
+
+/* MODAL */
 function openModal(html) {
   modalBody.innerHTML = html;
   resultModal.style.display = "block";
@@ -161,9 +148,7 @@ modalClose.onclick = () => {
   resultModal.style.display = "none";
 };
 
-/* ---------------------------
-   SHOW PRODUCT (YUKA-STYLE CARD)
----------------------------- */
+/* SHOW PRODUCT */
 async function showProduct(barcode) {
   const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}`;
   const res = await fetch(url);
@@ -178,38 +163,68 @@ async function showProduct(barcode) {
   const name = p.product_name || 'Unknown';
   const ingredientsText = p.ingredients_text || 'N/A';
   const nutr = p.nutriments || {};
+  const categories = p.categories_tags || [];
 
-  const healthScore = computeHealthScoreYuka(p);
-  const label = ratingLabel(healthScore);
+  const isCosmetic = categories.some(c =>
+    c.includes('cosmetics') ||
+    c.includes('beauty') ||
+    c.includes('skincare') ||
+    c.includes('makeup') ||
+    c.includes('hygiene')
+  );
 
-  const factsCard = `
+  const score = isCosmetic ? computeCosmeticScore(p) : computeFoodScore(p);
+  const label = ratingLabel(score);
+
+  let card = `
     <h2>${name}</h2>
-    <p class="${scoreClass(healthScore)}">${healthScore}/100 — ${label}</p>
-
-    <h3>Nutritional profile (per 100g)</h3>
-    <ul>
-      ${nutr['energy-kcal_100g'] ? `<li>Energy: ${nutr['energy-kcal_100g']} kcal</li>` : ""}
-      ${nutr.saturated_fat_100g ? `<li>Saturated fat: ${nutr.saturated_fat_100g} g</li>` : ""}
-      ${nutr.sugars_100g ? `<li>Sugars: ${nutr.sugars_100g} g</li>` : ""}
-      ${nutr.sodium_100g ? `<li>Sodium: ${nutr.sodium_100g} mg</li>` : ""}
-      ${nutr.proteins_100g ? `<li>Protein: ${nutr.proteins_100g} g</li>` : ""}
-      ${nutr.fiber_100g ? `<li>Fiber: ${nutr.fiber_100g} g</li>` : ""}
-    </ul>
-
-    <h3>Additives</h3>
-    <p>${(p.additives_n || 0)} additive(s) detected.</p>
-
-    <h3>Ingredients</h3>
-    <p>${ingredientsText}</p>
+    <p class="${scoreClass(score)}">${score}/100 — ${label}</p>
   `;
 
-  openModal(factsCard);
-  saveHistory(p, healthScore);
+  if (isCosmetic) {
+    card += `
+      <h3>Cosmetic Safety</h3>
+      <p>${ingredientsText}</p>
+    `;
+  } else {
+    card += `
+      <h3>Nutritional profile (per 100g)</h3>
+      <ul>
+        ${nutr['energy-kcal_100g'] ? `<li>Energy: ${nutr['energy-kcal_100g']} kcal</li>` : ""}
+        ${nutr.saturated_fat_100g ? `<li>Saturated fat: ${nutr.saturated_fat_100g} g</li>` : ""}
+        ${nutr.sugars_100g ? `<li>Sugars: ${nutr.sugars_100g} g</li>` : ""}
+        ${nutr.sodium_100g ? `<li>Sodium: ${nutr.sodium_100g} mg</li>` : ""}
+        ${nutr.proteins_100g ? `<li>Protein: ${nutr.proteins_100g} g</li>` : ""}
+        ${nutr.fiber_100g ? `<li>Fiber: ${nutr.fiber_100g} g</li>` : ""}
+      </ul>
+
+      <h3>Additives</h3>
+      <p>${(p.additives_n || 0)} additive(s) detected.</p>
+
+      <h3>Ingredients</h3>
+      <p>${ingredientsText}</p>
+    `;
+  }
+
+  const alternatives = findAlternatives(p, score);
+
+  if (alternatives.length) {
+    card += `<h3>Better Alternatives</h3>`;
+    alternatives.forEach(a => {
+      card += `
+        <div class="history-item">
+          <strong>${a.name}</strong><br>
+          <span class="${scoreClass(a.score)}">${a.score}/100</span>
+        </div>
+      `;
+    });
+  }
+
+  openModal(card);
+  saveHistory(p, score);
 }
 
-/* ---------------------------
-   CAMERA + SCANNING
----------------------------- */
+/* CAMERA */
 async function startScan() {
   if (!('BarcodeDetector' in window)) {
     scanStatusEl.textContent = 'BarcodeDetector not supported.';
@@ -220,20 +235,8 @@ async function startScan() {
 
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { exact: "environment" },
-        advanced: [{ torch: true }]
-      }
+      video: { facingMode: "environment" }
     });
-
-    track = stream.getVideoTracks()[0];
-
-    try {
-      await track.applyConstraints({ advanced: [{ torch: true }] });
-      flashOn = true;
-    } catch (e) {
-      console.log("Torch not supported");
-    }
 
     video.srcObject = stream;
     await video.play();
@@ -277,15 +280,12 @@ function stopScan() {
   if (stream) {
     stream.getTracks().forEach(t => t.stop());
   }
-  disableFlash();
   scanStatusEl.textContent = '';
 }
 
 scanBtn.addEventListener('click', startScan);
 
-/* ---------------------------
-   SEARCH ENGINE
----------------------------- */
+/* SEARCH */
 document.getElementById('searchBtn').onclick = async () => {
   const q = document.getElementById('searchBox').value.trim();
   if (!q) return;
@@ -308,7 +308,5 @@ document.getElementById('searchBtn').onclick = async () => {
   });
 };
 
-/* ---------------------------
-   INITIAL HISTORY RENDER
----------------------------- */
+/* INIT */
 renderHistory();
