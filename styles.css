@@ -41,7 +41,7 @@ main {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
-  padding-bottom: 80px; /* space for bottom nav */
+  padding-bottom: 90px;
 }
 
 /* SECTION BOXES */
@@ -111,16 +111,18 @@ video {
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  gap: 8px;
 }
 
-#closeScan {
+#closeScan, #flashToggle {
   background: rgba(0,0,0,0.6);
   color: #fff;
   padding: 8px 12px;
   border-radius: 8px;
 }
 
-/* HISTORY + SEARCH RESULTS + FAVORITES */
+/* LIST ITEMS */
 .history-item, #searchResults div, #favorites div {
   padding: 0.75rem;
   border-radius: 8px;
@@ -184,11 +186,62 @@ video {
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 
 .active-nav {
   font-weight: 700;
   text-decoration: underline;
+}
+
+/* PRODUCT IMAGE */
+.product-img {
+  max-width: 160px;
+  border-radius: 12px;
+  margin: 10px auto;
+  display: block;
+}
+
+/* ANIMATED SCORE RING */
+.score-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 10px auto;
+  position: relative;
+  background: conic-gradient(#8dd47f 0deg, #8dd47f 0deg, #3a3c35 0deg);
+}
+
+.score-ring-inner {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  border-radius: 50%;
+  background: #4a5c47;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* COMPARE LAYOUT */
+#compareContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.compare-card {
+  flex: 1 1 45%;
+  background: #6b7d5e;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #4a4c45;
+  color: #ffffff;
 }
