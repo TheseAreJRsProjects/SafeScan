@@ -139,7 +139,7 @@ video {
 .score-medium { color: #eab308; font-weight: 700; }
 .score-bad { color: #ef4444; font-weight: 700; }
 
-/* MODAL */
+/* MODAL BACKDROP */
 .modal {
   display: none;
   position: fixed;
@@ -151,22 +151,49 @@ video {
   background: rgba(0,0,0,0.6);
 }
 
+/* MODAL CONTENT — NOW SCROLLABLE */
 .modal-content {
   background: #4a5c47;
-  margin: 10% auto;
-  padding: 20px;
+  margin: 5% auto;
+  padding: 0;
   border-radius: 12px;
   width: 90%;
   max-width: 420px;
   color: #ffffff;
   border: 1px solid #3a3c35;
-  text-align: center;
+
+  /* NEW: scrollable modal */
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
 }
 
-.close {
-  float: right;
-  font-size: 24px;
+/* STICKY HEADER INSIDE MODAL */
+.modal-header {
+  position: sticky;
+  top: 0;
+  background: #3e4f3a;
+  padding: 12px;
+  border-bottom: 1px solid #2f3a2d;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* CLOSE BUTTON ALWAYS VISIBLE */
+.modal-close-btn {
+  font-size: 22px;
   cursor: pointer;
+  background: none;
+  border: none;
+  color: #ffffff;
+}
+
+/* MODAL BODY */
+#modalBody {
+  padding: 20px;
+  text-align: center;
 }
 
 /* BOTTOM NAV */
