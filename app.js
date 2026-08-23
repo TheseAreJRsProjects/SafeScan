@@ -242,8 +242,19 @@ async function renderCompare() {
 
 /* MODAL */
 function openModal(html) {
-  modalBody.innerHTML = html;
+  modalBody.innerHTML = `
+    <div class="modal-header">
+      <span style="font-weight:600;">Product Details</span>
+      <button class="modal-close-btn" id="modalStickyClose">✖</button>
+    </div>
+    ${html}
+  `;
+
   resultModal.style.display = "block";
+
+  document.getElementById('modalStickyClose').onclick = () => {
+    resultModal.style.display = "none";
+  };
 }
 
 modalClose.onclick = () => {
@@ -445,37 +456,4 @@ async function performSearch(query) {
   (data.products || []).slice(0, 10).forEach(p => {
     resultsEl.innerHTML += `
       <div onclick="showProduct('${p.code}')">
-        <strong>${p.product_name || 'Unknown'}</strong><br>
-        ${p.code}
-      </div>
-    `;
-  });
-}
-
-searchBox.addEventListener('keyup', () => {
-  const q = searchBox.value.trim();
-  clearTimeout(searchDebounceTimer);
-  searchDebounceTimer = setTimeout(() => performSearch(q), 400);
-});
-
-searchBtn.onclick = () => {
-  const q = searchBox.value.trim();
-  performSearch(q);
-};
-
-/* SETTINGS: CLEAR HISTORY/FAVORITES */
-clearHistoryBtn.onclick = () => {
-  localStorage.removeItem('history');
-  renderHistory();
-  renderCompare();
-};
-
-clearFavoritesBtn.onclick = () => {
-  localStorage.removeItem('favorites');
-  renderFavorites();
-};
-
-/* INIT */
-renderHistory();
-renderFavorites();
-renderCompare();
+        <strong>${p.product_name || '
