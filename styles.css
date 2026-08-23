@@ -5,13 +5,7 @@ body {
 }
 
 /* LIGHT TAN TEXTURED BACKGROUND */
-body.dark {
-  background: #f2e9d8; /* light tan */
-  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' fill='%23f2e9d8'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%23e8dfc9'/%3E%3Ccircle cx='150' cy='80' r='1' fill='%23e8dfc9'/%3E%3Ccircle cx='90' cy='160' r='1' fill='%23e8dfc9'/%3E%3C/svg%3E");
-  color: #2f2f2f;
-}
-
-body.light {
+body.dark, body.light {
   background: #f2e9d8;
   background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='200' height='200' fill='%23f2e9d8'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%23e8dfc9'/%3E%3Ccircle cx='150' cy='80' r='1' fill='%23e8dfc9'/%3E%3Ccircle cx='90' cy='160' r='1' fill='%23e8dfc9'/%3E%3C/svg%3E");
   color: #2f2f2f;
@@ -48,7 +42,7 @@ main {
   padding: 1rem;
   max-width: 800px;
   margin: 0 auto;
-  text-align: center; /* center all text */
+  text-align: center;
 }
 
 /* SECTION BOXES (OLIVE) */
