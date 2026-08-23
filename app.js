@@ -3,6 +3,7 @@ const scanBtn = document.getElementById('scanBtn');
 const video = document.getElementById('camera');
 const resultModal = document.getElementById('resultModal');
 const modalBody = document.getElementById('modalBody');
+const modalFavBtn = document.getElementById('modalFavBtn');
 const historyEl = document.getElementById('history');
 const favoritesEl = document.getElementById('favorites');
 const scanStatusEl = document.getElementById('scanStatus');
@@ -20,6 +21,7 @@ let stream;
 let scanning = false;
 let torchOn = false;
 let searchDebounceTimer = null;
+let lastProduct = null;
 
 /* TAB SWITCHING */
 navButtons.forEach(btn => {
@@ -39,6 +41,28 @@ themeToggle.onclick = () => {
   document.body.classList.toggle('dark');
   document.body.classList.toggle('light');
 };
+
+/* CATEGORY-SPECIFIC SCORING */
+function categorySpecificAdjustments(score, product) {
+  const categories = (product.categories_tags || []).map(c => c.toLowerCase());
+
+  // Drinks: penalize sugar more heavily
+  if (categories.some(c => c.includes('beverages') || c.includes('drinks'))) {
+    return Math.max(0, score - 10);
+  }
+
+  // Baby food: boost score slightly
+  if (categories.some(c => c.includes('baby-food'))) {
+    return Math.min(100, score + 8);
+  }
+
+  // Snacks: slight penalty
+  if (categories.some(c => c.includes('snacks'))) {
+    return Math.max(0, score - 5);
+  }
+
+  return score;
+}
 
 /* FOOD SCORING (NutriScore + Yuka weighting) */
 function computeFoodScore(product) {
@@ -82,7 +106,9 @@ function computeFoodScore(product) {
   const additivesComponent = (100 - additivesPenalty) * 0.3;
   const organicComponent = isOrganic ? 100 * 0.1 : 0;
 
-  return Math.max(0, Math.min(100, Math.round(nutritionalComponent + additivesComponent + organicComponent)));
+  let score = nutritionalComponent + additivesComponent + organicComponent;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 /* COSMETIC SCORING */
@@ -231,6 +257,12 @@ function openModal(html) {
   document.getElementById('modalStickyClose').onclick = () => {
     resultModal.style.display = "none";
   };
+
+  modalFavBtn.onclick = () => {
+    if (lastProduct) {
+      saveFavoriteByBarcode(lastProduct.code, lastProduct.score);
+    }
+  };
 }
 
 /* SHOW PRODUCT */
@@ -244,6 +276,8 @@ async function showProduct(barcode) {
   }
 
   const p = data.product;
+  lastProduct = p;
+
   const name = p.product_name || 'Unknown';
   const ingredientsText = p.ingredients_text || 'N/A';
   const nutr = p.nutriments || {};
@@ -258,9 +292,11 @@ async function showProduct(barcode) {
     c.includes('hygiene')
   );
 
-  const score = isCosmetic ? computeCosmeticScore(p) : computeFoodScore(p);
-  const label = ratingLabel(score);
+  let score = isCosmetic ? computeCosmeticScore(p) : computeFoodScore(p);
+  score = categorySpecificAdjustments(score, p);
+  lastProduct.score = score;
 
+  const label = ratingLabel(score);
   const ringAngle = (score / 100) * 360;
 
   let card = `
@@ -315,19 +351,7 @@ async function showProduct(barcode) {
     });
   }
 
-  card += `
-    <button id="favBtn" data-barcode="${p.code}" data-score="${score}">⭐ Add to Favorites</button>
-  `;
-
   openModal(card);
-
-  const favBtn = document.getElementById('favBtn');
-  if (favBtn) {
-    favBtn.onclick = () => {
-      saveFavoriteByBarcode(p.code, score);
-    };
-  }
-
   saveHistory(p, score);
 }
 
@@ -445,16 +469,4 @@ searchBtn.onclick = () => {
 /* SETTINGS */
 clearHistoryBtn.onclick = () => {
   localStorage.removeItem('history');
-  renderHistory();
-  renderCompare();
-};
-
-clearFavoritesBtn.onclick = () => {
-  localStorage.removeItem('favorites');
-  renderFavorites();
-};
-
-/* INIT */
-renderHistory();
-renderFavorites();
-renderCompare();
+  renderHistory
