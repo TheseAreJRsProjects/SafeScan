@@ -117,6 +117,10 @@ video {
   border: 1px solid #1f2937;
 }
 
+.modal-content h2 {
+  margin-top: 0;
+}
+
 .close {
   float: right;
   font-size: 24px;
