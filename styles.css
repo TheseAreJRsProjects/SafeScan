@@ -15,14 +15,13 @@ body.dark, body.light {
 .app-header {
   text-align: center;
   padding: 1.5rem;
-  background: #4a5c47; /* olive */
+  background: #4a5c47;
   color: #fff;
 }
 
 .logo {
   font-size: 2rem;
   font-weight: 700;
-  text-align: center;
 }
 
 /* THEME BUTTON */
@@ -34,7 +33,6 @@ body.dark, body.light {
   padding: 0.5rem 1rem;
   border-radius: 999px;
   cursor: pointer;
-  font-family: "Century Gothic";
 }
 
 /* MAIN CONTENT */
@@ -43,17 +41,22 @@ main {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+  padding-bottom: 80px; /* space for bottom nav */
 }
 
-/* SECTION BOXES (OLIVE) */
-section {
+/* SECTION BOXES */
+.tab-section {
+  display: none;
   margin-bottom: 1.5rem;
   padding: 1rem;
   border-radius: 12px;
-  background: #4a5c47; /* olive */
+  background: #4a5c47;
   border: 1px solid #3a3c35;
-  color: #ffffff; /* white text */
-  text-align: center;
+  color: #ffffff;
+}
+
+.active-tab {
+  display: block;
 }
 
 /* BUTTONS */
@@ -66,7 +69,6 @@ button {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  font-family: "Century Gothic";
 }
 
 button:hover {
@@ -87,7 +89,6 @@ input[type="text"] {
   border: 1px solid #4a4c45;
   background: #1f201c;
   color: #ffffff;
-  font-family: "Century Gothic";
   text-align: center;
 }
 
@@ -119,15 +120,15 @@ video {
   border-radius: 8px;
 }
 
-/* HISTORY + SEARCH RESULTS */
-.history-item, #searchResults div {
+/* HISTORY + SEARCH RESULTS + FAVORITES */
+.history-item, #searchResults div, #favorites div {
   padding: 0.75rem;
   border-radius: 8px;
-  background: #6b7d5e; /* olive box */
+  background: #6b7d5e;
   border: 1px solid #4a4c45;
   margin-bottom: 0.5rem;
   cursor: pointer;
-  color: #ffffff; /* white text */
+  color: #ffffff;
   text-align: center;
 }
 
@@ -149,13 +150,13 @@ video {
 }
 
 .modal-content {
-  background: #4a5c47; /* olive */
+  background: #4a5c47;
   margin: 10% auto;
   padding: 20px;
   border-radius: 12px;
   width: 90%;
   max-width: 420px;
-  color: #ffffff; /* white text */
+  color: #ffffff;
   border: 1px solid #3a3c35;
   text-align: center;
 }
@@ -164,4 +165,30 @@ video {
   float: right;
   font-size: 24px;
   cursor: pointer;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #4a5c47;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 2px solid #3a3c35;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.active-nav {
+  font-weight: 700;
+  text-decoration: underline;
 }
