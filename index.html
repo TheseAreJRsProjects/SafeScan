@@ -8,16 +8,17 @@
 </head>
 
 <body class="dark">
+
+  <!-- HEADER -->
   <header class="app-header">
     <div class="logo">🥗 SafeScan</div>
     <p>Scan or search products to see health scores.</p>
-
     <button id="themeToggle" class="theme-btn">🌙 Dark / ☀️ Light</button>
   </header>
 
   <main>
 
-    <!-- Scan Section -->
+    <!-- SCAN SECTION -->
     <section id="scanSection">
       <h2>Scan a Barcode</h2>
 
@@ -33,17 +34,19 @@
       <p id="scanStatus"></p>
     </section>
 
-    <!-- Search Section -->
+    <!-- SEARCH SECTION -->
     <section id="searchSection">
       <h2>Search Products</h2>
+
       <div class="search-row">
         <input type="text" id="searchBox" placeholder="Search by name...">
         <button id="searchBtn">Search</button>
       </div>
+
       <section id="searchResults"></section>
     </section>
 
-    <!-- History -->
+    <!-- HISTORY SECTION -->
     <section id="historySection">
       <h2>Scan History</h2>
       <div id="history"></div>
@@ -51,7 +54,7 @@
 
   </main>
 
-  <!-- Modal -->
+  <!-- MODAL -->
   <div id="resultModal" class="modal">
     <div class="modal-content">
       <span id="modalClose" class="close">&times;</span>
@@ -59,10 +62,4 @@
     </div>
   </div>
 
-  <footer>
-    <p>SafeScan • Powered by Open Food Facts</p>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
-</html>
+  <!-- FOOTER -->
