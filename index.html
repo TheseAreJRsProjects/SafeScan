@@ -16,10 +16,11 @@
     <button id="themeToggle" class="theme-btn">🌙 Dark / ☀️ Light</button>
   </header>
 
-  <main>
+  <!-- MAIN CONTENT -->
+  <main id="mainContent">
 
-    <!-- SCAN SECTION -->
-    <section id="scanSection">
+    <!-- SCAN TAB -->
+    <section id="tab-scan" class="tab-section active-tab">
       <h2>Scan a Barcode</h2>
 
       <div class="camera-container">
@@ -34,8 +35,8 @@
       <p id="scanStatus"></p>
     </section>
 
-    <!-- SEARCH SECTION -->
-    <section id="searchSection">
+    <!-- SEARCH TAB -->
+    <section id="tab-search" class="tab-section">
       <h2>Search Products</h2>
 
       <div class="search-row">
@@ -46,8 +47,14 @@
       <section id="searchResults"></section>
     </section>
 
-    <!-- HISTORY SECTION -->
-    <section id="historySection">
+    <!-- FAVORITES TAB -->
+    <section id="tab-favorites" class="tab-section">
+      <h2>Favorites</h2>
+      <div id="favorites"></div>
+    </section>
+
+    <!-- HISTORY TAB -->
+    <section id="tab-history" class="tab-section">
       <h2>Scan History</h2>
       <div id="history"></div>
     </section>
@@ -62,4 +69,18 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active-nav" data-tab="tab-scan">🥗 Scan</button>
+    <button class="nav-btn" data-tab="tab-search">🔍 Search</button>
+    <button class="nav-btn" data-tab="tab-favorites">⭐ Favorites</button>
+    <button class="nav-btn" data-tab="tab-history">🕘 History</button>
+  </nav>
+
+  <footer>
+    <p>SafeScan • Powered by Open Food Facts</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
