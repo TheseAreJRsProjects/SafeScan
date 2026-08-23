@@ -149,6 +149,14 @@ video {
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.6);
+
+  /* ANIMATED FADE-IN */
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* MODAL CONTENT (scroll container) */
@@ -165,6 +173,14 @@ video {
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
+
+  /* SLIDE-UP ANIMATION */
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* STICKY HEADER */
@@ -203,6 +219,26 @@ video {
   margin-top: 25px;
   padding-top: 15px;
   border-top: 1px solid rgba(255,255,255,0.25);
+}
+
+/* STICKY FOOTER */
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: #3e4f3a;
+  padding: 12px;
+  border-top: 1px solid #2f3a2d;
+  text-align: center;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.25);
+}
+
+.modal-footer button {
+  width: 90%;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 999px;
+  background: #6b7d5e;
+  color: #fff;
 }
 
 /* BOTTOM NAV */
@@ -280,4 +316,4 @@ video {
   padding: 10px;
   border: 1px solid #4a4c45;
   color: #ffffff;
-}
+  }
