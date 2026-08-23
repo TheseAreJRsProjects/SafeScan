@@ -151,24 +151,23 @@ video {
   background: rgba(0,0,0,0.6);
 }
 
-/* MODAL CONTENT — NOW SCROLLABLE */
+/* MODAL CONTENT (scroll container) */
 .modal-content {
   background: #4a5c47;
   margin: 5% auto;
-  padding: 0;
-  border-radius: 12px;
   width: 90%;
   max-width: 420px;
-  color: #ffffff;
+  border-radius: 12px;
   border: 1px solid #3a3c35;
+  color: #ffffff;
 
-  /* NEW: scrollable modal */
+  /* SCROLLABLE */
   max-height: 85vh;
   overflow-y: auto;
   position: relative;
 }
 
-/* STICKY HEADER INSIDE MODAL */
+/* STICKY HEADER */
 .modal-header {
   position: sticky;
   top: 0;
@@ -179,9 +178,12 @@ video {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  /* FADE SHADOW */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
-/* CLOSE BUTTON ALWAYS VISIBLE */
+/* CLOSE BUTTON */
 .modal-close-btn {
   font-size: 22px;
   cursor: pointer;
@@ -190,10 +192,17 @@ video {
   color: #ffffff;
 }
 
-/* MODAL BODY */
-#modalBody {
+/* SCROLLABLE BODY */
+.modal-body {
   padding: 20px;
   text-align: center;
+}
+
+/* SECTION DIVIDERS */
+.modal-body h3 {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.25);
 }
 
 /* BOTTOM NAV */
