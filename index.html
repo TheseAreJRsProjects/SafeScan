@@ -28,6 +28,7 @@
 
         <div class="camera-overlay">
           <button id="closeScan">✖</button>
+          <button id="flashToggle">🔦</button>
         </div>
       </div>
 
@@ -59,6 +60,20 @@
       <div id="history"></div>
     </section>
 
+    <!-- COMPARE TAB -->
+    <section id="tab-compare" class="tab-section">
+      <h2>Compare Products</h2>
+      <div id="compareContainer"></div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section id="tab-settings" class="tab-section">
+      <h2>Settings</h2>
+      <button id="clearHistoryBtn">Clear History</button>
+      <button id="clearFavoritesBtn">Clear Favorites</button>
+      <p>Flashlight preference is controlled per scan (🔦 button).</p>
+    </section>
+
   </main>
 
   <!-- MODAL -->
@@ -75,6 +90,8 @@
     <button class="nav-btn" data-tab="tab-search">🔍 Search</button>
     <button class="nav-btn" data-tab="tab-favorites">⭐ Favorites</button>
     <button class="nav-btn" data-tab="tab-history">🕘 History</button>
+    <button class="nav-btn" data-tab="tab-compare">⚖️ Compare</button>
+    <button class="nav-btn" data-tab="tab-settings">⚙️ Settings</button>
   </nav>
 
   <footer>
